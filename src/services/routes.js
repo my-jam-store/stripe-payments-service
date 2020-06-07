@@ -1,7 +1,10 @@
 const fs = require('fs')
+const cors = require('cors')
 
 function init(app, express) {
+  app.use(cors({ origin: true }))
   app.use(express.urlencoded({ extended: true }))
+
   setRoutes(app, express)
 }
 
