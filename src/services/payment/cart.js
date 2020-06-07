@@ -76,6 +76,8 @@ async function createOrder(paymentIntent) {
   cartItems.forEach(item => {
     delete item.fields['item_id']
     delete item.fields['payment_intent_id']
+    delete item.fields['created_at']
+    delete item.fields['updated_at']
 
     lineItems.push({ fields: item.fields })
   })
