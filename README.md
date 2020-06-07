@@ -1,1 +1,1 @@
-# Stripe Payments (Server-side)
+# Stripe Payments Service (Server-side)

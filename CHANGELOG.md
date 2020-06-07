@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Enable all CORS requests.
 
+### Changed
+- Rename project.
+
 ### Removed
 - Remove time fields in cart to order items mapping.
 
