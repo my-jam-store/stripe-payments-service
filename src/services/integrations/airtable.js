@@ -1,5 +1,7 @@
 const airtable = require('airtable')
 
+const recordsInsertLimit = 10
+const chunksInsertDelay = 1000
 const base = baseInit()
 
 function baseInit() {
@@ -7,20 +9,65 @@ function baseInit() {
     .base(process.env.AIRTABLE_BASE_ID)
 }
 
-function createRecord(table, data, callback = defaultCallback) {
-  return base(table).create(data, callback)
+async function createRecord(table, data, callback = defaultCallback) {
+  if (!isInsertProcessRecordsAboveLimit(data)) {
+    return base(table).create(data, callback)
+  }
+
+  const chunks = insertProcessRecordsChunks(data)
+
+  for (let i = 0; i < chunks.length; i++) {
+    base(table).create(chunks[i], callback)
+
+    if (chunks[i + 1]) {
+      await insertProcessChunksDelay()
+    }
+  }
 }
 
 async function list(table, selectParams = {}) {
   return await tableSelect(table, selectParams).all()
 }
 
-function updateRecord(table, recordId, data, callback = defaultCallback) {
-  return base(table).update(recordId, data, callback)
+async function updateRecord(table, recordId, data, callback = defaultCallback) {
+  if (!isInsertProcessRecordsAboveLimit(data)) {
+    return base(table).update(recordId, data, callback)
+  }
+
+  const chunks = insertProcessRecordsChunks(data)
+
+  for (let i = 0; i < chunks.length; i++) {
+    base(table).update(recordId, chunks[i], callback)
+
+    if (chunks[i + 1]) {
+      await insertProcessChunksDelay()
+    }
+  }
 }
 
 function deleteRecords(table, recordsIds, callback = defaultCallback) {
   base(table).destroy(recordsIds, callback)
+}
+
+function insertProcessRecordsChunks(array) {
+  const chunks = []
+  let chunkSize = recordsInsertLimit < 1 ? 1 : recordsInsertLimit
+
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize))
+  }
+
+  return chunks
+}
+
+function isInsertProcessRecordsAboveLimit(data) {
+  return Array.isArray(data) && data.length > recordsInsertLimit
+}
+
+function insertProcessChunksDelay() {
+  return new Promise(resolve => {
+    setTimeout(resolve, chunksInsertDelay)
+  })
 }
 
 function defaultCallback(err, record) {
