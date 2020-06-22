@@ -1,7 +1,7 @@
 const airtable = require('airtable')
 
-const recordsInsertLimit = 10
-const chunksInsertDelay = 1000
+const bulkActionRecordsLimit = 10
+const bulkActionChunkDelay = 1000 // In milliseconds.
 const base = baseInit()
 
 function baseInit() {
@@ -10,17 +10,17 @@ function baseInit() {
 }
 
 async function createRecord(table, data, callback = defaultCallback) {
-  if (!isInsertProcessRecordsAboveLimit(data)) {
+  if (!isBulkActionRecordsAboveLimit(data)) {
     return base(table).create(data, callback)
   }
 
-  const chunks = insertProcessRecordsChunks(data)
+  const chunks = bulkActionRecordsChunks(data)
 
   for (let i = 0; i < chunks.length; i++) {
     base(table).create(chunks[i], callback)
 
     if (chunks[i + 1]) {
-      await insertProcessChunksDelay()
+      await setBulkActionChunkDelay()
     }
   }
 }
@@ -30,28 +30,56 @@ async function list(table, selectParams = {}) {
 }
 
 async function updateRecord(table, recordId, data, callback = defaultCallback) {
-  if (!isInsertProcessRecordsAboveLimit(data)) {
+  if (!isBulkActionRecordsAboveLimit(data)) {
     return base(table).update(recordId, data, callback)
   }
 
-  const chunks = insertProcessRecordsChunks(data)
+  const chunks = bulkActionRecordsChunks(data)
 
   for (let i = 0; i < chunks.length; i++) {
     base(table).update(recordId, chunks[i], callback)
 
     if (chunks[i + 1]) {
-      await insertProcessChunksDelay()
+      await setBulkActionChunkDelay()
     }
   }
 }
 
-function deleteRecords(table, recordsIds, callback = defaultCallback) {
-  base(table).destroy(recordsIds, callback)
+async function deleteRecords(table, recordsIds) {
+  if (!isBulkActionRecordsAboveLimit(recordsIds)) {
+    return await destroySync(table, recordsIds)
+  }
+
+  const chunks = bulkActionRecordsChunks(recordsIds)
+
+  for (let i = 0; i < chunks.length; i++) {
+    await destroySync(table, chunks[i])
+
+    if (chunks[i + 1]) {
+      await setBulkActionChunkDelay()
+    }
+  }
 }
 
-function insertProcessRecordsChunks(array) {
+function destroySync(table, recordsIds) {
+  return new Promise((resolve, reject) => {
+    base(table).destroy(
+      recordsIds,
+      (err, record) => {
+        if (err) {
+          console.error(err)
+          reject(err)
+        }
+
+        resolve(record)
+      }
+    )
+  })
+}
+
+function bulkActionRecordsChunks(array) {
   const chunks = []
-  let chunkSize = recordsInsertLimit < 1 ? 1 : recordsInsertLimit
+  const chunkSize = bulkActionRecordsLimit < 1 ? 1 : bulkActionRecordsLimit
 
   for (let i = 0; i < array.length; i += chunkSize) {
     chunks.push(array.slice(i, i + chunkSize))
@@ -60,17 +88,17 @@ function insertProcessRecordsChunks(array) {
   return chunks
 }
 
-function isInsertProcessRecordsAboveLimit(data) {
-  return Array.isArray(data) && data.length > recordsInsertLimit
+function isBulkActionRecordsAboveLimit(data) {
+  return Array.isArray(data) && data.length > bulkActionRecordsLimit
 }
 
-function insertProcessChunksDelay() {
+function setBulkActionChunkDelay() {
   return new Promise(resolve => {
-    setTimeout(resolve, chunksInsertDelay)
+    setTimeout(resolve, bulkActionChunkDelay)
   })
 }
 
-function defaultCallback(err, record) {
+function defaultCallback(err) {
   if (err) {
     console.error(err)
   }

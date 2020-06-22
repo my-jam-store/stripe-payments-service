@@ -100,23 +100,23 @@ async function items(paymentIntentId) {
   )
 }
 
-function updateItems(paymentIntentId, items) {
-  deleteItems(
-    paymentIntentId,
-    async (err, record) => {
-      if (err) {
-        console.error(err)
-        return
-      }
+async function updateItems(paymentIntentId, items) {
+  try {
+    await deleteItems(paymentIntentId)
+  } catch (err) {
+    return
+  }
 
-      addItems(paymentIntentId, items)
-    }
-  )
+  addItems(paymentIntentId, items)
 }
 
-async function deleteItems(paymentIntentId, callback) {
+async function deleteItems(paymentIntentId) {
   const itemIds = await itemRecordIds(paymentIntentId)
-  airtable.deleteRecords(process.env.AIRTABLE_CART_ITEMS_VIEW, itemIds, callback)
+
+  await airtable.deleteRecords(
+    process.env.AIRTABLE_CART_ITEMS_VIEW,
+    itemIds
+  )
 }
 
 async function itemRecordIds(paymentIntentId) {
