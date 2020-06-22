@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Enable all CORS requests.
-- Airtable insert process records chunking.
+- Airtable bulk actions records chunking.
 
 ### Changed
 - Rename project.
