@@ -52,7 +52,7 @@ async function addCustomerDetails(paymentIntentId, customerDetails) {
     { metadata: { "customer_details": JSON.stringify(customerDetails) } }
   )
 
-  saveCustomerDetailsRecord(customerDetails)
+  saveCustomerDetailsRecord(paymentIntentId, customerDetails)
 
   return paymentIntent
 }
