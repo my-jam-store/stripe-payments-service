@@ -123,6 +123,10 @@ function tableSelect(table, params = {}) {
     selectParams.maxRecords = params.maxRecords
   }
 
+  if (params.pageSize) {
+    selectParams.pageSize = params.pageSize
+  }
+
   return base(table).select(selectParams)
 }
 

@@ -46,6 +46,17 @@ async function update(paymentIntentId, total, lineItems, lineItemsMetadata) {
   return updatedPaymentIntent
 }
 
+async function addCustomerDetails(paymentIntentId, customerDetails) {
+  const paymentIntent = await stripe.updatePaymentIntent(
+    paymentIntentId,
+    { metadata: { "customer_details": JSON.stringify(customerDetails) } }
+  )
+
+  saveCustomerDetailsRecord(customerDetails)
+
+  return paymentIntent
+}
+
 async function createOrder(paymentIntent) {
   const chargesData = paymentIntent.charges.data[0]
   const billing = paymentIntent.shipping || chargesData.billing_details
@@ -112,11 +123,7 @@ async function updateItems(paymentIntentId, items) {
 
 async function deleteItems(paymentIntentId) {
   const itemIds = await itemRecordIds(paymentIntentId)
-
-  await airtable.deleteRecords(
-    process.env.AIRTABLE_CART_ITEMS_VIEW,
-    itemIds
-  )
+  await airtable.deleteRecords(process.env.AIRTABLE_CART_ITEMS_VIEW, itemIds)
 }
 
 async function itemRecordIds(paymentIntentId) {
@@ -135,6 +142,30 @@ async function itemRecordIds(paymentIntentId) {
   return recordIds.length === 1 ? recordIds[0] : recordIds
 }
 
+async function saveCustomerDetailsRecord(paymentIntentId, customerDetails) {
+  const customerId = await customerRecordId(paymentIntentId)
+  customerDetails['payment_intent_id'] = paymentIntentId
+
+  return customerId
+    ? airtable.updateRecord(process.env.AIRTABLE_CART_CUSTOMERS_VIEW, customerId, customerDetails)
+    : airtable.createRecord(process.env.AIRTABLE_CART_CUSTOMERS_VIEW, customerDetails)
+}
+
+async function customerRecordId(paymentIntentId) {
+  let recordId = null
+  const selectParams = {
+    fields: ['customer_id'],
+    filter: `payment_intent_id = "${paymentIntentId}"`,
+    maxRecords: 1,
+    pageSize: 1
+  }
+
+  const records = await airtable.list(process.env.AIRTABLE_CART_CUSTOMERS_VIEW, selectParams)
+  records.forEach(record => { recordId = record.id })
+
+  return recordId
+}
+
 function totalInteger(total) {
   return parseInt(parseFloat(total).toFixed(2) * 100)
 }
@@ -142,5 +173,6 @@ function totalInteger(total) {
 module.exports = {
   create,
   update,
+  addCustomerDetails,
   createOrder
 }
