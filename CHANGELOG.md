@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Enable all CORS requests.
 - Airtable bulk actions records chunking.
+- Cart customer details save feature.
 
 ### Changed
 - Rename project.

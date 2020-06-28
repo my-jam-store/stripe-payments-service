@@ -30,6 +30,11 @@
       "methods": ["PUT"]
     },
     {
+      "src": "/cart/customer",
+      "dest": "/src/index.js",
+      "methods": ["PUT"]
+    },
+    {
       "src": "/coupon-code",
       "dest": "/src/index.js",
       "methods": ["POST"]
