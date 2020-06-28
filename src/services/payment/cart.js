@@ -47,14 +47,12 @@ async function update(paymentIntentId, total, lineItems, lineItemsMetadata) {
 }
 
 async function addCustomerDetails(paymentIntentId, customerDetails) {
-  const paymentIntent = await stripe.updatePaymentIntent(
+  await stripe.updatePaymentIntent(
     paymentIntentId,
     { metadata: { "customer_details": JSON.stringify(customerDetails) } }
   )
 
   saveCustomerDetailsRecord(paymentIntentId, customerDetails)
-
-  return paymentIntent
 }
 
 async function createOrder(paymentIntent) {

@@ -8,8 +8,8 @@ function setRoute(app, express) {
 
 async function routeHandler(req, res) {
   try {
-    const paymentIntent = await cart.addCustomerDetails(req.body.cart_id, req.body.customer_details)
-    res.send(paymentIntent)
+    await cart.addCustomerDetails(req.body.cart_id, req.body.customer_details)
+    res.sendStatus(200)
   } catch (err) {
     console.error(err)
     res.status(500).send(err.message)
