@@ -21,6 +21,34 @@ async function updatePaymentIntent(paymentIntentId, params) {
   return await stripe.paymentIntents.update(paymentIntentId, params)
 }
 
+async function createCustomer(data) {
+  return await stripe.customers.create(data)
+}
+
+async function customer(customerId) {
+  return await stripe.customers.retrieve(customerId)
+}
+
+async function customersList(email = null) {
+  const params = {}
+
+  if (email) {
+    params.email = email
+  }
+
+  const list = await stripe.customers.list(params)
+
+  if (email) {
+    return list.data ? list.data[0] : null
+  }
+
+  return list.data
+}
+
+async function updateCustomer(customerId, params) {
+  return await stripe.customers.update(customerId, params)
+}
+
 function webhookEventPaymentIntent(payload, payloadHeaders) {
   const event = constructWebhookEvent(payload, payloadHeaders)
   return event.data.object
@@ -56,6 +84,10 @@ module.exports = {
   createPaymentIntent,
   paymentIntent,
   updatePaymentIntent,
+  createCustomer,
+  customer,
+  customersList,
+  updateCustomer,
   webhookEventPaymentIntent,
   isPaymentIntentRequiresCapture
 }
