@@ -11,7 +11,11 @@ function routeHandler(req, res) {
   let paymentIntent
 
   try {
-    paymentIntent = stripe.webhookEventPaymentIntent(req.body, req.headers)
+    paymentIntent = stripe.webhookEventPaymentIntent(
+      req.body,
+      req.headers,
+      process.env.STRIPE_ORDER_CREATE_WEBHOOK_SECRET
+    )
 
     if (!stripe.isPaymentIntentRequiresCapture(paymentIntent)) {
       return res.sendStatus(403)
