@@ -1,7 +1,7 @@
 const stripe = rootRequire('services/integrations/stripe')
-const cart = rootRequire('services/payment/cart')
+const customer = rootRequire('services/payment/customer')
 
-const routeName = 'order'
+const routeName = 'customer'
 
 function setRoute(app, express) {
   app.post(`/${routeName}`, express.raw({ type: "application/json" }), routeHandler)
@@ -14,7 +14,7 @@ function routeHandler(req, res) {
     paymentIntent = stripe.webhookEventPaymentIntent(
       req.body,
       req.headers,
-      process.env.STRIPE_ORDER_CREATE_WEBHOOK_SECRET
+      process.env.STRIPE_CUSTOMER_CREATE_WEBHOOK_SECRET
     )
 
     if (!stripe.isPaymentIntentRequiresCapture(paymentIntent)) {
@@ -26,7 +26,7 @@ function routeHandler(req, res) {
   }
 
   try {
-    cart.createOrder(paymentIntent)
+    customer.create(paymentIntent)
     res.sendStatus(200)
   } catch (err) {
     console.error(err)
