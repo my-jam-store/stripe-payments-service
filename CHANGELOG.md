@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Airtable bulk actions records chunking.
 - Cart customer details save feature.
 - Stripe payment intent customer creation.
+- Subtotal free shipping.
 
 ### Changed
 - Rename project.
@@ -21,4 +22,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[Unreleased]: https://github.com/my-jam-store/stripe-payments-server/compare/0.1.0...HEAD
 [0.1.0]: https://github.com/my-jam-store/stripe-payments-server/releases/tag/0.1.0

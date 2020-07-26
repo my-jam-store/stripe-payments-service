@@ -3,8 +3,9 @@ const airtable = rootRequire('services/integrations/airtable')
 
 async function applyCode(code, paymentIntentId) {
   const paymentIntent = await stripe.paymentIntent(paymentIntentId)
-  const discount = await codeDiscount(code)
+  checkFreeShipping(paymentIntent.amount)
 
+  const discount = await codeDiscount(code)
   if (!discount) {
     return paymentIntent
   }
@@ -25,6 +26,7 @@ async function applyCode(code, paymentIntentId) {
 
 async function removeCode(paymentIntentId) {
   const paymentIntent = await stripe.paymentIntent(paymentIntentId)
+  checkFreeShipping(paymentIntent.amount)
 
   if (!paymentIntent.metadata.coupon_code) {
     return paymentIntent
@@ -63,6 +65,12 @@ async function updatePaymentIntent(paymentIntentId, updateAmount, couponCode, co
   }
 
   return await stripe.updatePaymentIntent(paymentIntentId, params)
+}
+
+function checkFreeShipping(total) {
+  if (shipping.isFreeShipping(total)) {
+    throw new Error('Coupon code is not applicable to free shipping orders.')
+  }
 }
 
 module.exports = {
