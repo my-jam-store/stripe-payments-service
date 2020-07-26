@@ -1,5 +1,6 @@
 const stripe = rootRequire('services/integrations/stripe')
 const airtable = rootRequire('services/integrations/airtable')
+const shipping = rootRequire('services/payment/shipping')
 
 async function applyCode(code, paymentIntentId) {
   const paymentIntent = await stripe.paymentIntent(paymentIntentId)
