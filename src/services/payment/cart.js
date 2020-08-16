@@ -4,10 +4,11 @@ const order = rootRequire('services/payment/order')
 const shipping = rootRequire('services/payment/shipping')
 
 async function create(total, lineItems, lineItemsMetadata) {
+  const shippingAmount = shipping.amount(total)
   const paymentIntent = await stripe.createPaymentIntent({
-    amount: totalInteger(total) + shipping.amount(),
+    amount: totalInteger(total) + shippingAmount,
     metadata: {
-      "shipping_amount": shipping.amount(),
+      "shipping_amount": shippingAmount,
       "line_items": lineItemsMetadata
     }
   })
@@ -19,7 +20,7 @@ async function create(total, lineItems, lineItemsMetadata) {
 
 async function update(paymentIntentId, total, lineItems, lineItemsMetadata) {
   const paymentIntent = await stripe.paymentIntent(paymentIntentId)
-  total = totalInteger(total) + shipping.amount()
+  total = totalInteger(total) + shipping.amount(total)
 
   if (paymentIntent.metadata.tip_amount) {
     total += parseInt(paymentIntent.metadata.tip_amount)
