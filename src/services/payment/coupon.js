@@ -69,6 +69,8 @@ async function updatePaymentIntent(paymentIntentId, updateAmount, couponCode, co
 }
 
 function checkFreeShipping(total) {
+  total = parseFloat((total / 100).toFixed(2))
+
   if (shipping.isFreeShipping(total)) {
     throw new Error('Coupon code is not applicable to free shipping orders.')
   }
