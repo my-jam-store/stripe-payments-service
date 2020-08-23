@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Rename project.
 
+### Fixed
+- Update Stripe Payment Intent shipping amount metadata when cart gets updated.
+
 ### Removed
 - Remove time fields in cart to order items mapping.
 
