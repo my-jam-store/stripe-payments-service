@@ -4,7 +4,7 @@ const shipping = rootRequire('services/payment/shipping')
 
 async function applyCode(code, paymentIntentId) {
   const paymentIntent = await stripe.paymentIntent(paymentIntentId)
-  checkFreeShipping(paymentIntent.amount)
+  checkFreeShipping(paymentIntent)
 
   const discount = await codeDiscount(code)
   if (!discount) {
@@ -27,7 +27,7 @@ async function applyCode(code, paymentIntentId) {
 
 async function removeCode(paymentIntentId) {
   const paymentIntent = await stripe.paymentIntent(paymentIntentId)
-  checkFreeShipping(paymentIntent.amount)
+  checkFreeShipping(paymentIntent)
 
   if (!paymentIntent.metadata.coupon_code) {
     return paymentIntent
@@ -68,7 +68,10 @@ async function updatePaymentIntent(paymentIntentId, updateAmount, couponCode, co
   return await stripe.updatePaymentIntent(paymentIntentId, params)
 }
 
-function checkFreeShipping(total) {
+function checkFreeShipping(paymentIntent) {
+  let total = paymentIntent.amount - paymentIntent.metadata.shipping_amount
+  total = parseFloat((total / 100).toFixed(2))
+
   if (shipping.isFreeShipping(total)) {
     throw new Error('Coupon code is not applicable to free shipping orders.')
   }

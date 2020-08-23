@@ -20,20 +20,32 @@ async function create(total, lineItems, lineItemsMetadata) {
 
 async function update(paymentIntentId, total, lineItems, lineItemsMetadata) {
   const paymentIntent = await stripe.paymentIntent(paymentIntentId)
-  total = totalInteger(total) + shipping.amount(total)
+  const shippingAmount = shipping.amount(total)
+  let couponCode = paymentIntent.metadata.coupon_code
+  let couponDiscount = paymentIntent.metadata.coupon_discount
+
+  total = totalInteger(total) + shippingAmount
 
   if (paymentIntent.metadata.tip_amount) {
     total += parseInt(paymentIntent.metadata.tip_amount)
   }
 
-  if (paymentIntent.metadata.coupon_code) {
-    total -= parseInt(paymentIntent.metadata.coupon_discount)
+  if (couponCode) {
+    if (shippingAmount) {
+      total -= parseInt(couponDiscount)
+    } else {
+      couponCode = null
+      couponDiscount = null
+    }
   }
 
   const paymentIntentParams = {
     amount: total,
     metadata: {
-      "line_items": lineItemsMetadata
+      "shipping_amount": shippingAmount,
+      "line_items": lineItemsMetadata,
+      "coupon_code": couponCode,
+      "coupon_discount": couponDiscount
     }
   }
 
