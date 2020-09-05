@@ -93,7 +93,7 @@ async function createOrder(paymentIntent) {
   const lineItems = []
 
   console.log(`[ORDER_LINE_ITEMS] - [PAYMENT_INTENT_ID: ${paymentIntent.id}]`)
-  console.log(cartItems)
+  console.log(JSON.stringify(cartItems))
 
   cartItems.forEach(item => {
     delete item.fields['item_id']

@@ -9,7 +9,7 @@ function setRoute(app, express) {
 async function routeHandler(req, res) {
   try {
     console.log('[CART_CREATE_LINE_ITEMS]')
-    console.log(req.body.line_items)
+    console.log(JSON.stringify(req.body.line_items))
 
     const paymentIntent = await cart.create(
       req.body.amount,
