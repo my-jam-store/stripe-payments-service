@@ -10,7 +10,7 @@ async function routeHandler(req, res) {
   try {
     console.log(`[PAYMENT_INTENT_ID]: ${req.body.cart_id}`)
     console.log('[CART_UPDATE_LINE_ITEMS]')
-    console.log(req.body.line_items)
+    console.log(JSON.stringify(req.body.line_items))
 
     const paymentIntent = await cart.update(
       req.body.cart_id,

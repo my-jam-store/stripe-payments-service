@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Rename project.
+- Stringify the logged JSON data.
 
 ### Fixed
 - Update Stripe Payment Intent shipping amount metadata when cart gets updated.
